@@ -19,7 +19,7 @@ or
 $ yarn run build
 ```
 
-## Using nuxt.js programmatically
+## Using xjdScroll.js programmatically
 
 ```javascript
 // index.html
