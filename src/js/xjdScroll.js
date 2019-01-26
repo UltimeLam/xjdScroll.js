@@ -12,11 +12,36 @@ var __assign = (this && this.__assign) || function () {
 var xjdScroll = /** @class */ (function () {
     function xjdScroll(id, options) {
         var _this = this;
-        this.version = '1.0.0';
+        this.dcm = document;
+        this.version = '1.0.1';
         this.cursorDown = false;
         this.selectedThumb = '';
         this.X = 0;
         this.Y = 0;
+        this.verticalMap = {
+            offset: 'offsetHeight',
+            scroll: 'scrollTop',
+            scrollSize: 'scrollHeight',
+            size: 'height',
+            key: 'vertical',
+            axis: 'Y',
+            client: 'clientY',
+            direction: 'top',
+            wrapperClient: 'clientHeight',
+            contentOffset: 'offsetHeight'
+        };
+        this.horizontalMap = {
+            offset: 'offsetWidth',
+            scroll: 'scrollLeft',
+            scrollSize: 'scrollWidth',
+            size: 'width',
+            key: 'horizontal',
+            axis: 'X',
+            client: 'clientX',
+            direction: 'left',
+            wrapperClient: 'clientWidth',
+            contentOffset: 'offsetWidth'
+        };
         this.defultOption = {
             height: '100%',
             width: '100%'
@@ -53,67 +78,32 @@ var xjdScroll = /** @class */ (function () {
                 };
             }
         })();
-        this.mousedownVerticalBar = function (e) {
-            var offset = Math.abs(e.target.getBoundingClientRect().top - e.clientY);
-            var thumbHalf = _this.verticalBar.children[0].offsetHeight / 2;
-            var thumbPositionPercentage = (offset - thumbHalf) / _this.verticalBar.offsetHeight;
-            _this.wrapper.scrollTop = thumbPositionPercentage * _this.wrapper.scrollHeight;
-        };
-        this.mousedownVerticalBarThumb = function (e) {
-            e.stopImmediatePropagation();
-            _this.selectedThumb = 'vertical';
-            _this.cursorDown = true;
-            _this.on(document, 'mousemove', _this.mouseMoveDocumentHandler);
-            _this.on(document, 'mouseup', _this.mouseUpDocumentHandler);
-            _this.dom.onselectstart = function () { return false; };
-            _this.Y =
-                e.currentTarget.offsetHeight -
-                    e.clientY +
-                    e.currentTarget.getBoundingClientRect().top;
-        };
-        this.mousedownHorizontalBar = function (e) {
-            var offset = Math.abs(e.target.getBoundingClientRect().left - e.clientX);
-            var thumbHalf = _this.horizontalBar.children[0].offsetWidth / 2;
-            var thumbPositionPercentage = (offset - thumbHalf) / _this.horizontalBar.offsetWidth;
-            _this.wrapper.scrollLeft = thumbPositionPercentage * _this.wrapper.scrollWidth;
-        };
-        this.mousedownHorizontalBarThumb = function (e) {
-            e.stopImmediatePropagation();
-            _this.selectedThumb = 'horizontal';
-            _this.cursorDown = true;
-            _this.on(document, 'mousemove', _this.mouseMoveDocumentHandler);
-            _this.on(document, 'mouseup', _this.mouseUpDocumentHandler);
-            _this.dom.onselectstart = function () { return false; };
-            _this.X =
-                e.currentTarget.offsetWidth -
-                    e.clientX +
-                    e.currentTarget.getBoundingClientRect().left;
-        };
+        this.clearSlct = 'getSelection' in window
+            ? function () {
+                window.getSelection().removeAllRanges();
+            }
+            : function () {
+                this.dcm.selection.empty();
+            };
         this.mouseMoveDocumentHandler = function (e) {
             if (_this.cursorDown === false)
                 return;
-            if (_this.selectedThumb === 'vertical') {
-                var offset = e.clientY - _this.verticalBar.getBoundingClientRect().top;
-                var thumbClickPosition = _this.verticalBar.children[0].offsetHeight - _this.Y;
-                var thumbPositionPercentage = (offset - thumbClickPosition) / _this.verticalBar.offsetHeight;
-                _this.wrapper.scrollTop =
-                    thumbPositionPercentage * _this.wrapper.scrollHeight;
-            }
-            else if (_this.selectedThumb === 'horizontal') {
-                var offset = e.clientX - _this.horizontalBar.getBoundingClientRect().left;
-                var thumbClickPosition = _this.horizontalBar.children[0].offsetWidth - _this.X;
-                var thumbPositionPercentage = (offset - thumbClickPosition) / _this.horizontalBar.offsetWidth;
-                _this.wrapper.scrollLeft =
-                    thumbPositionPercentage * _this.wrapper.scrollWidth;
-            }
+            var map = _this[_this.selectedThumb + "Map"];
+            var offset = e[map.client] -
+                _this[_this.selectedThumb + "Bar"].getBoundingClientRect()[map.direction];
+            var thumbClickPosition = _this[_this.selectedThumb + "Bar"].children[0][map.offset] - _this[map.axis];
+            var thumbPositionPercentage = (offset - thumbClickPosition) /
+                _this[_this.selectedThumb + "Bar"][map.offset];
+            _this.wrapper[map.scroll] =
+                thumbPositionPercentage * _this.wrapper[map.scrollSize];
         };
-        this.mouseUpDocumentHandler = function (e) {
+        this.mouseUpDocumentHandler = function () {
             _this.cursorDown = false;
-            _this.off(document, 'mousemove', _this.mouseMoveDocumentHandler);
-            _this.off(document, 'mouseup', _this.mouseUpDocumentHandler);
-            _this.dom.onselectstart = null;
+            _this.off(_this.dcm, 'mousemove', _this.mouseMoveDocumentHandler);
+            _this.off(_this.dcm, 'mouseup', _this.mouseUpDocumentHandler);
+            _this.dcm.onselectstart = null;
         };
-        this.dom = document.getElementById(id);
+        this.dom = this.dcm.getElementById(id);
         this.wrapper = this.dom.children[0];
         this.content = this.wrapper.children[0];
         this.scrollbarWidth = this.getScrollbarWidth();
@@ -124,12 +114,12 @@ var xjdScroll = /** @class */ (function () {
         this.init();
     }
     xjdScroll.prototype.getScrollbarWidth = function () {
-        var scrollDiv = document.createElement('div');
+        var scrollDiv = this.dcm.createElement('div');
         scrollDiv.style.cssText =
             'width: 99px; height: 99px; overflow: scroll; position: absolute; top: -9999px;';
-        document.body.appendChild(scrollDiv);
+        this.dcm.body.appendChild(scrollDiv);
         var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
-        document.body.removeChild(scrollDiv);
+        this.dcm.body.removeChild(scrollDiv);
         return scrollbarWidth;
     };
     xjdScroll.prototype.hasScrollbar = function () {
@@ -138,31 +128,39 @@ var xjdScroll = /** @class */ (function () {
             horizontal: this.content.scrollWidth > this.wrapper.clientWidth
         };
     };
-    xjdScroll.prototype.creatVerticalBar = function () {
-        var verticalBar = document.createElement('div');
-        verticalBar.setAttribute('class', 'myScroll__verticalBar');
-        this.on(verticalBar, 'mousedown', this.mousedownVerticalBar);
-        var thumb = document.createElement('div');
+    xjdScroll.prototype.creatBar = function (type) {
+        var _this = this;
+        if (type !== 'vertical' && type !== 'horizontal') {
+            console.log("type must be 'vertical' or 'horizontal'");
+            return;
+        }
+        var map = this[type + "Map"], bar = this.dcm.createElement('div'), thumb = this.dcm.createElement('div');
+        bar.setAttribute('class', " myScroll__" + type + "Bar");
+        this.on(bar, 'mousedown', function (e) {
+            var offset = Math.abs(e.target.getBoundingClientRect()[map.direction] - e[map.client]);
+            var thumbHalf = _this[type + "Bar"].children[0][map.offset] / 2;
+            var thumbPositionPercentage = (offset - thumbHalf) / _this[type + "Bar"][map.offset];
+            _this.wrapper[map.scroll] =
+                thumbPositionPercentage * _this.wrapper[map.scrollSize];
+        });
         thumb.setAttribute('class', 'myScroll__thumb');
-        thumb.style.height = (this.wrapper.clientHeight /
-            this.content.offsetHeight) *
-            100 + "%";
-        this.on(thumb, 'mousedown', this.mousedownVerticalBarThumb);
-        verticalBar.appendChild(thumb);
-        return verticalBar;
-    };
-    xjdScroll.prototype.creatHorizontalBar = function () {
-        var horizontalBar = document.createElement('div');
-        horizontalBar.setAttribute('class', 'myScroll__horizontalBar');
-        this.on(horizontalBar, 'mousedown', this.mousedownHorizontalBar);
-        var thumb = document.createElement('div');
-        thumb.setAttribute('class', 'myScroll__thumb');
-        thumb.style.width = (this.wrapper.clientWidth /
-            this.content.offsetWidth) *
-            100 + "%";
-        this.on(thumb, 'mousedown', this.mousedownHorizontalBarThumb);
-        horizontalBar.appendChild(thumb);
-        return horizontalBar;
+        thumb.style.cssText = this.renderThumbStyle('0', (this.wrapper[map.wrapperClient] / this.content[map.contentOffset]) *
+            100 + "%", map);
+        this.on(thumb, 'mousedown', function (e) {
+            e.stopImmediatePropagation();
+            _this.clearSlct();
+            _this.selectedThumb = type;
+            _this.cursorDown = true;
+            _this.on(_this.dcm, 'mousemove', _this.mouseMoveDocumentHandler);
+            _this.on(_this.dcm, 'mouseup', _this.mouseUpDocumentHandler);
+            _this.dcm.onselectstart = function () { return false; };
+            _this[map.axis] =
+                e.currentTarget[map.offset] -
+                    e[map.client] +
+                    e.currentTarget.getBoundingClientRect()[map.direction];
+        });
+        bar.appendChild(thumb);
+        return bar;
     };
     xjdScroll.prototype.deleteBar = function () {
         if (this.dom.children.length === 1)
@@ -170,8 +168,14 @@ var xjdScroll = /** @class */ (function () {
         for (var i = 1, l = this.dom.children.length; i < l; i++) {
             this.dom.removeChild(this.dom.children[1]);
         }
-        this.verticalBar = void 0;
-        this.horizontalBar = void 0;
+        this.verticalBar = null;
+        this.horizontalBar = null;
+    };
+    xjdScroll.prototype.renderThumbStyle = function (move, size, map) {
+        var translate = "translate" + map.axis + "(" + move + "%)";
+        return [
+            map.size
+        ] + ": " + size + ";transform: " + translate + ";-webkit-transform: " + translate + ";-ms-transform: " + translate + ";";
     };
     xjdScroll.prototype.init = function () {
         var _this = this;
@@ -180,9 +184,9 @@ var xjdScroll = /** @class */ (function () {
         this.wrapper.scrollLeft = 0;
         this.on(this.dom, 'mouseover', function () {
             if (_this.verticalBar)
-                _this.verticalBar.style.opacity = 1;
+                _this.verticalBar.style.opacity = '1';
             if (_this.horizontalBar)
-                _this.horizontalBar.style.opacity = 1;
+                _this.horizontalBar.style.opacity = '1';
         });
         this.on(this.dom, 'mouseleave', function () {
             if (_this.cursorDown === true)
@@ -193,16 +197,21 @@ var xjdScroll = /** @class */ (function () {
                 _this.horizontalBar.style.opacity = '';
         });
         this.on(this.wrapper, 'scroll', function (e) {
-            if (_this.verticalBar)
-                _this.verticalBar.children[0].style.transform = "translateY(" + (e.target
-                    .scrollTop /
-                    _this.wrapper.clientHeight) *
-                    100 + "%)";
-            if (_this.horizontalBar)
-                _this.horizontalBar.children[0].style.transform = "translateX(" + (e.target
-                    .scrollLeft /
-                    _this.wrapper.clientWidth) *
-                    100 + "%)";
+            var map;
+            if (_this.verticalBar) {
+                map = _this.verticalMap;
+                var thumb = _this.verticalBar.children[0];
+                thumb.style.cssText = _this.renderThumbStyle("" + (e.target[map.scroll] / _this.wrapper[map.wrapperClient]) * 100, (_this.wrapper[map.wrapperClient] /
+                    _this.content[map.contentOffset]) *
+                    100 + "%", map);
+            }
+            if (_this.horizontalBar) {
+                map = _this.horizontalMap;
+                var thumb = _this.horizontalBar.children[0];
+                thumb.style.cssText = _this.renderThumbStyle("" + (e.target[map.scroll] / _this.wrapper[map.wrapperClient]) * 100, (_this.wrapper[map.wrapperClient] /
+                    _this.content[map.contentOffset]) *
+                    100 + "%", map);
+            }
         });
     };
     xjdScroll.prototype.refresh = function () {
@@ -213,19 +222,19 @@ var xjdScroll = /** @class */ (function () {
         this.cursorDown = false;
         var hasScrollbar = this.hasScrollbar();
         if (hasScrollbar.vertical && hasScrollbar.horizontal) {
-            this.verticalBar = this.creatVerticalBar();
-            this.horizontalBar = this.creatHorizontalBar();
+            this.verticalBar = this.creatBar('vertical');
+            this.horizontalBar = this.creatBar('horizontal');
             this.verticalBar.style.cssText = 'bottom: 12px;';
             this.horizontalBar.style.cssText = 'right: 12px;';
             this.dom.appendChild(this.verticalBar);
             this.dom.appendChild(this.horizontalBar);
         }
         else if (hasScrollbar.vertical) {
-            this.verticalBar = this.creatVerticalBar();
+            this.verticalBar = this.creatBar('vertical');
             this.dom.appendChild(this.verticalBar);
         }
         else if (hasScrollbar.horizontal) {
-            this.horizontalBar = this.creatHorizontalBar();
+            this.horizontalBar = this.creatBar('horizontal');
             this.dom.appendChild(this.horizontalBar);
         }
         else {
