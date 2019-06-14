@@ -10,10 +10,10 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 var xjdScroll = /** @class */ (function () {
-    function xjdScroll(id, options) {
+    function xjdScroll(dom, options) {
         var _this = this;
         this.dcm = document;
-        this.version = '1.0.1';
+        this.version = '1.0.2';
         this.cursorDown = false;
         this.selectedThumb = '';
         this.X = 0;
@@ -103,7 +103,7 @@ var xjdScroll = /** @class */ (function () {
             _this.off(_this.dcm, 'mouseup', _this.mouseUpDocumentHandler);
             _this.dcm.onselectstart = null;
         };
-        this.dom = this.dcm.getElementById(id);
+        this.dom = dom;
         this.wrapper = this.dom.children[0];
         this.content = this.wrapper.children[0];
         this.scrollbarWidth = this.getScrollbarWidth();

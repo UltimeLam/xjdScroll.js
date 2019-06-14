@@ -29,7 +29,7 @@ class xjdScroll {
   private horizontalBar: HTMLElement
   private dcm: Document | any = document
 
-  public version: string = '1.0.1'
+  public version: string = '1.0.2'
 
   private scrollbarWidth: number
 
@@ -71,8 +71,8 @@ class xjdScroll {
     width: '100%'
   }
 
-  constructor(id: string, options?: Object) {
-    this.dom = this.dcm.getElementById(id)
+  constructor(dom: HTMLElement, options?: Object) {
+    this.dom = dom;
     this.wrapper = this.dom.children[0] as HTMLElement
     this.content = this.wrapper.children[0] as HTMLElement
 

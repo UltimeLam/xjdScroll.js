@@ -21,8 +21,8 @@ $ yarn run build
 
 ## Using xjdScroll.js programmatically
 
-```javascript
-// index.html
+```html
+<!-- index.html -->
 
 <!DOCTYPE html>
 <html>
@@ -43,15 +43,17 @@ $ yarn run build
 	</div>
 </body>
 
-<script src="js/index.min.js" type="text/javascript" charset="utf-8"></script>
-<script type="text/javascript" charset="utf-8">
-// xjdScroll(id, options)
+<script src="js/index.min.js"></script>
+<script>
+var myScroll = document.getElementById('myScroll');
 
-var newScroll = new xjdScroll('myScroll')
+// xjdScroll(element, options)
+
+var newScroll = new xjdScroll(myScroll);
 
 // or
 
-var newScroll = new xjdScroll('myScroll',{
+var newScroll = new xjdScroll(myScroll,{
   height: '600px',
   width: '600px'
 })

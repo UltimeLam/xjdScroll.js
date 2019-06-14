@@ -1,5 +1,6 @@
 var step = 300,
-  newScroll;
+  newScroll = null,
+  myScroll = document.querySelector('#myScroll');
 
 function contentAddWidth() {
   var myScrollContent = newScroll.content,
@@ -29,15 +30,15 @@ function contentReduceHeight() {
   newScroll.refresh();
 }
 
-function refresh() {
-  newScroll = new xjdScroll('myScroll', {
+function refresh() { 
+  newScroll = new xjdScroll(myScroll, {
     height: '600px',
     width: '600px'
   })
 }
 
 function fullScreen() {
-  newScroll = new xjdScroll('myScroll')
+  newScroll = new xjdScroll(myScroll)
 }
 
 window.onload = function () {
