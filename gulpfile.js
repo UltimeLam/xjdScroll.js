@@ -56,8 +56,9 @@ function ysjs(done) {
   done()
 }
 
-gulp.task('clean:dist', () => {
-  return del('dist/**/*');
-});
+function clean(done) {
+  del('dist/**/*')
+  done()
+}
 
-gulp.task('build', gulp.series('clean:dist', gulp.parallel(yshtml, yscss, ysjs)))
+gulp.task('build', gulp.series(clean, gulp.parallel(yshtml, yscss, ysjs)))
