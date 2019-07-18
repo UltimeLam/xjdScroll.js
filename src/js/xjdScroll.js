@@ -104,8 +104,8 @@ var xjdScroll = /** @class */ (function () {
             _this.dcm.onselectstart = null;
         };
         this.dom = dom;
-        this.wrapper = this.dom.children[0];
-        this.content = this.wrapper.children[0];
+        this.wrapper = this.dom.childNodes[0];
+        this.content = this.wrapper.childNodes[0];
         this.scrollbarWidth = this.getScrollbarWidth();
         if (options)
             this.defultOption = __assign({}, this.defultOption, options);
@@ -200,14 +200,14 @@ var xjdScroll = /** @class */ (function () {
             var map;
             if (_this.verticalBar) {
                 map = _this.verticalMap;
-                var thumb = _this.verticalBar.children[0];
+                var thumb = _this.verticalBar.childNodes[0];
                 thumb.style.cssText = _this.renderThumbStyle("" + (e.target[map.scroll] / _this.wrapper[map.wrapperClient]) * 100, (_this.wrapper[map.wrapperClient] /
                     _this.content[map.contentOffset]) *
                     100 + "%", map);
             }
             if (_this.horizontalBar) {
                 map = _this.horizontalMap;
-                var thumb = _this.horizontalBar.children[0];
+                var thumb = _this.horizontalBar.childNodes[0];
                 thumb.style.cssText = _this.renderThumbStyle("" + (e.target[map.scroll] / _this.wrapper[map.wrapperClient]) * 100, (_this.wrapper[map.wrapperClient] /
                     _this.content[map.contentOffset]) *
                     100 + "%", map);

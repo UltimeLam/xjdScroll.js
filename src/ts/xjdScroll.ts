@@ -29,7 +29,7 @@ class xjdScroll {
   private horizontalBar: HTMLElement
   private dcm: Document | any = document
 
-  public version: string = '1.0.2'
+  public version: string = '1.0.3'
 
   private scrollbarWidth: number
 
@@ -73,8 +73,8 @@ class xjdScroll {
 
   constructor(dom: HTMLElement, options?: Object) {
     this.dom = dom;
-    this.wrapper = this.dom.children[0] as HTMLElement
-    this.content = this.wrapper.children[0] as HTMLElement
+    this.wrapper = this.dom.childNodes[0] as HTMLElement
+    this.content = this.wrapper.childNodes[0] as HTMLElement
 
     this.scrollbarWidth = this.getScrollbarWidth()
     if (options) this.defultOption = { ...this.defultOption, ...options }
@@ -255,7 +255,7 @@ class xjdScroll {
       let map: barMap
       if (this.verticalBar) {
         map = this.verticalMap
-        const thumb: HTMLElement = this.verticalBar.children[0] as HTMLElement
+        const thumb = this.verticalBar.childNodes[0] as HTMLElement
         thumb.style.cssText = this.renderThumbStyle(
           `${(e.target[map.scroll] / this.wrapper[map.wrapperClient]) * 100}`,
           `${(this.wrapper[map.wrapperClient] /
@@ -266,7 +266,7 @@ class xjdScroll {
       }
       if (this.horizontalBar) {
         map = this.horizontalMap
-        const thumb: HTMLElement = this.horizontalBar.children[0] as HTMLElement
+        const thumb = this.horizontalBar.childNodes[0] as HTMLElement
         thumb.style.cssText = this.renderThumbStyle(
           `${(e.target[map.scroll] / this.wrapper[map.wrapperClient]) * 100}`,
           `${(this.wrapper[map.wrapperClient] /

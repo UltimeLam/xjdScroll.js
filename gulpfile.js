@@ -1,11 +1,11 @@
-var gulp = require('gulp')
-var htmlmin = require('gulp-htmlmin')
-var cssmin = require('gulp-cssmin')
-var uglify = require('gulp-uglify')
-var del = require('del')
-var rename = require('gulp-rename')
+const gulp = require('gulp')
+const htmlmin = require('gulp-htmlmin')
+const cssmin = require('gulp-cssmin')
+const uglify = require('gulp-uglify')
+const del = require('del')
+const rename = require('gulp-rename')
 
-function yshtml(done) {
+function minhtml(done) {
   gulp
     .src('src/index.html')
 
@@ -20,7 +20,7 @@ function yshtml(done) {
   done()
 }
 
-function yscss(done) {
+function mincss(done) {
   gulp
     .src('src/css/index.css')
 
@@ -36,7 +36,7 @@ function yscss(done) {
   done()
 }
 
-function ysjs(done) {
+function minjs(done) {
   gulp
     .src('src/js/**/*.js')
 
@@ -61,4 +61,4 @@ function clean(done) {
   done()
 }
 
-gulp.task('build', gulp.series(clean, gulp.parallel(yshtml, yscss, ysjs)))
+gulp.task('build', gulp.series(clean, gulp.parallel(minhtml, mincss, minjs)))
