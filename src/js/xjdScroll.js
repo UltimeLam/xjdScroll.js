@@ -1,7 +1,7 @@
 export default class xjdScroll {
     constructor(dom, options) {
         this.dcm = document;
-        this.version = '1.0.3';
+        this.version = '1.1.0';
         this.cursorDown = false;
         this.selectedThumb = '';
         this.X = 0;

@@ -29,7 +29,7 @@ export default class xjdScroll {
   private horizontalBar: HTMLElement
   private dcm: Document | any = document
 
-  public version: string = '1.1.0'
+  public version: string = '1.1.1'
 
   private scrollbarWidth: number
 

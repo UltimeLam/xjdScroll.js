@@ -1,6 +1,6 @@
 const gulp = require("gulp");
 const htmlmin = require("gulp-htmlmin");
-const cssmin = require("gulp-cssmin");
+const cssmin = require("gulp-clean-css");
 const uglify = require("gulp-uglify");
 const del = require("del");
 const rename = require("gulp-rename");
