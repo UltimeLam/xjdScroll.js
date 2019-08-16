@@ -21,7 +21,7 @@ interface hasScrollBarType {
   horizontal: boolean
 }
 
-class xjdScroll {
+export default class xjdScroll {
   public dom: HTMLElement
   public wrapper: HTMLElement
   public content: HTMLElement
@@ -29,7 +29,7 @@ class xjdScroll {
   private horizontalBar: HTMLElement
   private dcm: Document | any = document
 
-  public version: string = '1.0.3'
+  public version: string = '1.1.0'
 
   private scrollbarWidth: number
 

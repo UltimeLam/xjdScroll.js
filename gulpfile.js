@@ -1,13 +1,14 @@
-const gulp = require('gulp')
-const htmlmin = require('gulp-htmlmin')
-const cssmin = require('gulp-cssmin')
-const uglify = require('gulp-uglify')
-const del = require('del')
-const rename = require('gulp-rename')
+const gulp = require("gulp");
+const htmlmin = require("gulp-htmlmin");
+const cssmin = require("gulp-cssmin");
+const uglify = require("gulp-uglify");
+const del = require("del");
+const rename = require("gulp-rename");
+const babel = require("gulp-babel");
 
 function minhtml(done) {
   gulp
-    .src('src/index.html')
+    .src("src/index.html")
 
     .pipe(
       htmlmin({
@@ -16,29 +17,36 @@ function minhtml(done) {
       })
     )
 
-    .pipe(gulp.dest('./dist'))
-  done()
+    .pipe(gulp.dest("./dist"));
+  done();
 }
 
 function mincss(done) {
   gulp
-    .src('src/css/index.css')
+    .src("src/css/index.css")
 
     .pipe(cssmin())
 
     .pipe(
-      rename(function (path) {
-        path.basename += '.min'
+      rename(function(path) {
+        path.basename += ".min";
       })
     )
 
-    .pipe(gulp.dest('./dist/css'))
-  done()
+    .pipe(gulp.dest("./dist/css"));
+  done();
 }
 
 function minjs(done) {
   gulp
-    .src('src/js/**/*.js')
+    .src("src/js/**/*.js")
+
+    .pipe(
+      babel({
+        presets: ["@babel/env"],
+        plugins: ["@babel/plugin-transform-modules-umd"]
+      })
+    )
 
     .pipe(
       uglify({
@@ -48,17 +56,17 @@ function minjs(done) {
 
     .pipe(
       rename(path => {
-        path.basename += '.min'
+        path.basename += ".min";
       })
     )
 
-    .pipe(gulp.dest('./dist/js'))
-  done()
+    .pipe(gulp.dest("./dist/js"));
+  done();
 }
 
 function clean(done) {
-  del('dist/**/*')
-  done()
+  del("dist/**/*");
+  done();
 }
 
-gulp.task('build', gulp.series(clean, gulp.parallel(minhtml, mincss, minjs)))
+gulp.task("build", gulp.series(clean, gulp.parallel(minhtml, mincss, minjs)));
