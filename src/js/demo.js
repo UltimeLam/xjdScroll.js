@@ -5,47 +5,57 @@ const step = 300,
 
 let newScroll = null;
 
-function contentAddWidth() {
+const contentAddWidth = document.getElementById("contentAddWidth");
+contentAddWidth.onclick = function() {
   const myScrollContent = newScroll.content,
     newWidth = myScrollContent.offsetWidth + step;
   myScrollContent.style.width = newWidth + "px";
   newScroll.refresh();
-}
+};
 
-function contentReduceWidth() {
+const contentReduceWidth = document.getElementById("contentReduceWidth");
+contentReduceWidth.onclick = function() {
   const myScrollContent = newScroll.content,
     newWidth = myScrollContent.offsetWidth - step;
-  myScrollContent.style.width = newWidth + "px";
-  newScroll.refresh();
-}
+  if (newWidth >= 400) {
+    myScrollContent.style.width = newWidth + "px";
+    newScroll.refresh();
+  }
+};
 
-function contentAddHeight() {
+const contentAddHeight = document.getElementById("contentAddHeight");
+contentAddHeight.onclick = function() {
   const myScrollContent = newScroll.content,
     newHeight = myScrollContent.offsetHeight + step;
   myScrollContent.style.height = newHeight + "px";
   newScroll.refresh();
-}
+};
 
-function contentReduceHeight() {
+const contentReduceHeight = document.getElementById("contentReduceHeight");
+contentReduceHeight.onclick = function() {
   const myScrollContent = newScroll.content,
     newHeight = myScrollContent.offsetHeight - step;
-  myScrollContent.style.height = newHeight + "px";
-  newScroll.refresh();
-}
+  if (newHeight >= 400) {
+    myScrollContent.style.height = newHeight + "px";
+    newScroll.refresh();
+  }
+};
 
-function refresh() {
+const refresh = document.getElementById("refresh");
+refresh.onclick = function() {
   newScroll = new xjdScroll(myScroll, {
     height: "600px",
     width: "600px"
   });
-}
+};
 
-function fullScreen() {
+const fullScreen = document.getElementById("fullScreen");
+fullScreen.onclick = function() {
   newScroll = new xjdScroll(myScroll);
-}
+};
 
 window.onload = function() {
-  refresh();
+  refresh.click();
 };
 
 window.onresize = function() {

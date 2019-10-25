@@ -1,7 +1,7 @@
 export default class xjdScroll {
     constructor(dom, options) {
         this.dcm = document;
-        this.version = '1.1.0';
+        this.version = '1.1.1';
         this.cursorDown = false;
         this.selectedThumb = '';
         this.X = 0;
@@ -96,7 +96,7 @@ export default class xjdScroll {
         this.content = this.wrapper.childNodes[0];
         this.scrollbarWidth = this.getScrollbarWidth();
         if (options)
-            this.defultOption = Object.assign({}, this.defultOption, options);
+            this.defultOption = Object.assign(Object.assign({}, this.defultOption), options);
         this.dom.style.cssText = `height: ${this.defultOption.height};width: ${this.defultOption.width};`;
         this.wrapper.style.cssText = `height: calc(100% + ${this.scrollbarWidth}px);margin-right: -${this.scrollbarWidth}px;margin-bottom: -${this.scrollbarWidth}px`;
         this.init();
