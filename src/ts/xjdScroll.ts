@@ -4,16 +4,16 @@ interface defultOption {
 }
 
 interface barMap {
-  offset: string
-  scroll: string
-  scrollSize: string
-  size: string
-  key: string
-  axis: string
-  client: string
-  direction: string
-  wrapperClient: string
-  contentOffset: string
+  offset: 'offsetWidth' | 'offsetHeight'
+  scroll: 'scrollLeft' | 'scrollTop'
+  scrollSize: 'scrollWidth' | 'scrollHeight'
+  size: 'width' | 'height'
+  key: 'horizontal' | 'vertical'
+  axis: 'X' | 'Y'
+  client: 'clientX' | 'clientY'
+  direction: 'left' | 'top'
+  wrapperClient: 'clientWidth' | 'clientHeight'
+  contentOffset: 'offsetWidth' | 'offsetHeight'
 }
 
 interface hasScrollBarType {
@@ -27,9 +27,9 @@ export default class xjdScroll {
   public content: HTMLElement
   private verticalBar: HTMLElement
   private horizontalBar: HTMLElement
-  private dcm: Document | any = document
+  private dcm: HTMLDocument | any = document
 
-  public version: string = '1.1.1'
+  static version: string = '1.2.0'
 
   private scrollbarWidth: number
 
@@ -39,19 +39,6 @@ export default class xjdScroll {
 
   private X: number = 0
   private Y: number = 0
-
-  private verticalMap: barMap = {
-    offset: 'offsetHeight',
-    scroll: 'scrollTop',
-    scrollSize: 'scrollHeight',
-    size: 'height',
-    key: 'vertical',
-    axis: 'Y',
-    client: 'clientY',
-    direction: 'top',
-    wrapperClient: 'clientHeight',
-    contentOffset: 'offsetHeight'
-  }
 
   private horizontalMap: barMap = {
     offset: 'offsetWidth',
@@ -64,6 +51,19 @@ export default class xjdScroll {
     direction: 'left',
     wrapperClient: 'clientWidth',
     contentOffset: 'offsetWidth'
+  }
+
+  private verticalMap: barMap = {
+    offset: 'offsetHeight',
+    scroll: 'scrollTop',
+    scrollSize: 'scrollHeight',
+    size: 'height',
+    key: 'vertical',
+    axis: 'Y',
+    client: 'clientY',
+    direction: 'top',
+    wrapperClient: 'clientHeight',
+    contentOffset: 'offsetHeight'
   }
 
   private defultOption: defultOption = {
@@ -92,47 +92,6 @@ export default class xjdScroll {
     this.init()
   }
 
-  private on = (function() {
-    if (document.addEventListener) {
-      return function(element: any, event: string, handler: any): void {
-        if (element && event && handler) {
-          element.addEventListener(event, handler, false)
-        }
-      }
-    } else {
-      return function(element: any, event: string, handler: any): void {
-        if (element && event && handler) {
-          element.attachEvent('on' + event, handler)
-        }
-      }
-    }
-  })()
-
-  private off = (function() {
-    if (document.removeEventListener) {
-      return function(element: any, event: string, handler: any): void {
-        if (element && event) {
-          element.removeEventListener(event, handler, false)
-        }
-      }
-    } else {
-      return function(element: any, event: string, handler: any): void {
-        if (element && event) {
-          element.detachEvent('on' + event, handler)
-        }
-      }
-    }
-  })()
-
-  private clearSlct =
-    'getSelection' in window
-      ? function() {
-          window.getSelection().removeAllRanges()
-        }
-      : function() {
-          this.dcm.selection.empty()
-        }
-
   private getScrollbarWidth(): number {
     let scrollDiv: HTMLElement = this.dcm.createElement('div')
     scrollDiv.style.cssText =
@@ -150,7 +109,7 @@ export default class xjdScroll {
     }
   }
 
-  private creatBar(type: string): HTMLElement {
+  private createBar(type: string): HTMLElement {
     if (type !== 'vertical' && type !== 'horizontal') {
       console.log("type must be 'vertical' or 'horizontal'")
       return
@@ -162,9 +121,9 @@ export default class xjdScroll {
 
     bar.setAttribute('class', ` myScroll__${type}Bar`)
 
-    this.on(bar, 'mousedown', (e: any) => {
+    bar.addEventListener('mousedown', (e: any) => {
       const offset = Math.abs(
-        e.target.getBoundingClientRect()[map.direction] - e[map.client]
+        e.currentTarget.getBoundingClientRect()[map.direction] - e[map.client]
       )
       const thumbHalf = this[`${type}Bar`].children[0][map.offset] / 2
       const thumbPositionPercentage =
@@ -182,13 +141,13 @@ export default class xjdScroll {
       map
     )
 
-    this.on(thumb, 'mousedown', (e: any) => {
+    thumb.addEventListener('mousedown', (e: any) => {
       e.stopImmediatePropagation()
-      this.clearSlct()
+      window.getSelection().removeAllRanges()
       this.selectedThumb = type
       this.cursorDown = true
-      this.on(this.dcm, 'mousemove', this.mouseMoveDocumentHandler)
-      this.on(this.dcm, 'mouseup', this.mouseUpDocumentHandler)
+      this.dcm.addEventListener('mousemove', this.mouseMoveDocumentHandler)
+      this.dcm.addEventListener('mouseup', this.mouseUpDocumentHandler)
       this.dcm.onselectstart = () => false
       this[map.axis] =
         e.currentTarget[map.offset] -
@@ -216,8 +175,8 @@ export default class xjdScroll {
 
   private mouseUpDocumentHandler = () => {
     this.cursorDown = false
-    this.off(this.dcm, 'mousemove', this.mouseMoveDocumentHandler)
-    this.off(this.dcm, 'mouseup', this.mouseUpDocumentHandler)
+    this.dcm.removeEventListener('mousemove', this.mouseMoveDocumentHandler)
+    this.dcm.removeEventListener('mouseup', this.mouseUpDocumentHandler)
     this.dcm.onselectstart = null
   }
 
@@ -242,22 +201,22 @@ export default class xjdScroll {
     this.refresh()
     this.wrapper.scrollTop = 0
     this.wrapper.scrollLeft = 0
-    this.on(this.dom, 'mouseover', () => {
+    this.dom.addEventListener('mouseover', () => {
       if (this.verticalBar) this.verticalBar.style.opacity = '1'
       if (this.horizontalBar) this.horizontalBar.style.opacity = '1'
     })
-    this.on(this.dom, 'mouseleave', () => {
+    this.dom.addEventListener('mouseleave', () => {
       if (this.cursorDown === true) return
       if (this.verticalBar) this.verticalBar.style.opacity = ''
       if (this.horizontalBar) this.horizontalBar.style.opacity = ''
     })
-    this.on(this.wrapper, 'scroll', (e: any) => {
+    this.wrapper.addEventListener('scroll', (e: any) => {
       let map: barMap
       if (this.verticalBar) {
         map = this.verticalMap
         const thumb = this.verticalBar.childNodes[0] as HTMLElement
         thumb.style.cssText = this.renderThumbStyle(
-          `${(e.target[map.scroll] / this.wrapper[map.wrapperClient]) * 100}`,
+          `${(e.currentTarget[map.scroll] / this.wrapper[map.wrapperClient]) * 100}`,
           `${(this.wrapper[map.wrapperClient] /
             this.content[map.contentOffset]) *
             100}%`,
@@ -268,7 +227,7 @@ export default class xjdScroll {
         map = this.horizontalMap
         const thumb = this.horizontalBar.childNodes[0] as HTMLElement
         thumb.style.cssText = this.renderThumbStyle(
-          `${(e.target[map.scroll] / this.wrapper[map.wrapperClient]) * 100}`,
+          `${(e.currentTarget[map.scroll] / this.wrapper[map.wrapperClient]) * 100}`,
           `${(this.wrapper[map.wrapperClient] /
             this.content[map.contentOffset]) *
             100}%`,
@@ -286,17 +245,17 @@ export default class xjdScroll {
     this.cursorDown = false
     let hasScrollbar = this.hasScrollbar()
     if (hasScrollbar.vertical && hasScrollbar.horizontal) {
-      this.verticalBar = this.creatBar('vertical')
-      this.horizontalBar = this.creatBar('horizontal')
+      this.verticalBar = this.createBar('vertical')
+      this.horizontalBar = this.createBar('horizontal')
       this.verticalBar.style.cssText = 'bottom: 12px;'
       this.horizontalBar.style.cssText = 'right: 12px;'
       this.dom.appendChild(this.verticalBar)
       this.dom.appendChild(this.horizontalBar)
     } else if (hasScrollbar.vertical) {
-      this.verticalBar = this.creatBar('vertical')
+      this.verticalBar = this.createBar('vertical')
       this.dom.appendChild(this.verticalBar)
     } else if (hasScrollbar.horizontal) {
-      this.horizontalBar = this.creatBar('horizontal')
+      this.horizontalBar = this.createBar('horizontal')
       this.dom.appendChild(this.horizontalBar)
     } else {
       this.deleteBar()

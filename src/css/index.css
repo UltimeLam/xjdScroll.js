@@ -97,7 +97,7 @@ body {
   margin: auto
 }
 
-.myScroll__wrapper:after {
+.myScroll__wrapper::after {
   content: "";
   display: block;
   height: 0;
@@ -105,7 +105,7 @@ body {
   visibility: hidden
 }
 
-.myScroll__wrapper:before {
+.myScroll__wrapper::before {
   content: "";
   display: table
 }

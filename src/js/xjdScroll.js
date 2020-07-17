@@ -1,23 +1,10 @@
 export default class xjdScroll {
     constructor(dom, options) {
         this.dcm = document;
-        this.version = '1.1.1';
         this.cursorDown = false;
         this.selectedThumb = '';
         this.X = 0;
         this.Y = 0;
-        this.verticalMap = {
-            offset: 'offsetHeight',
-            scroll: 'scrollTop',
-            scrollSize: 'scrollHeight',
-            size: 'height',
-            key: 'vertical',
-            axis: 'Y',
-            client: 'clientY',
-            direction: 'top',
-            wrapperClient: 'clientHeight',
-            contentOffset: 'offsetHeight'
-        };
         this.horizontalMap = {
             offset: 'offsetWidth',
             scroll: 'scrollLeft',
@@ -30,49 +17,22 @@ export default class xjdScroll {
             wrapperClient: 'clientWidth',
             contentOffset: 'offsetWidth'
         };
+        this.verticalMap = {
+            offset: 'offsetHeight',
+            scroll: 'scrollTop',
+            scrollSize: 'scrollHeight',
+            size: 'height',
+            key: 'vertical',
+            axis: 'Y',
+            client: 'clientY',
+            direction: 'top',
+            wrapperClient: 'clientHeight',
+            contentOffset: 'offsetHeight'
+        };
         this.defultOption = {
             height: '100%',
             width: '100%'
         };
-        this.on = (function () {
-            if (document.addEventListener) {
-                return function (element, event, handler) {
-                    if (element && event && handler) {
-                        element.addEventListener(event, handler, false);
-                    }
-                };
-            }
-            else {
-                return function (element, event, handler) {
-                    if (element && event && handler) {
-                        element.attachEvent('on' + event, handler);
-                    }
-                };
-            }
-        })();
-        this.off = (function () {
-            if (document.removeEventListener) {
-                return function (element, event, handler) {
-                    if (element && event) {
-                        element.removeEventListener(event, handler, false);
-                    }
-                };
-            }
-            else {
-                return function (element, event, handler) {
-                    if (element && event) {
-                        element.detachEvent('on' + event, handler);
-                    }
-                };
-            }
-        })();
-        this.clearSlct = 'getSelection' in window
-            ? function () {
-                window.getSelection().removeAllRanges();
-            }
-            : function () {
-                this.dcm.selection.empty();
-            };
         this.mouseMoveDocumentHandler = (e) => {
             if (this.cursorDown === false)
                 return;
@@ -87,8 +47,8 @@ export default class xjdScroll {
         };
         this.mouseUpDocumentHandler = () => {
             this.cursorDown = false;
-            this.off(this.dcm, 'mousemove', this.mouseMoveDocumentHandler);
-            this.off(this.dcm, 'mouseup', this.mouseUpDocumentHandler);
+            this.dcm.removeEventListener('mousemove', this.mouseMoveDocumentHandler);
+            this.dcm.removeEventListener('mouseup', this.mouseUpDocumentHandler);
             this.dcm.onselectstart = null;
         };
         this.dom = dom;
@@ -116,15 +76,15 @@ export default class xjdScroll {
             horizontal: this.content.scrollWidth > this.wrapper.clientWidth
         };
     }
-    creatBar(type) {
+    createBar(type) {
         if (type !== 'vertical' && type !== 'horizontal') {
             console.log("type must be 'vertical' or 'horizontal'");
             return;
         }
         const map = this[`${type}Map`], bar = this.dcm.createElement('div'), thumb = this.dcm.createElement('div');
         bar.setAttribute('class', ` myScroll__${type}Bar`);
-        this.on(bar, 'mousedown', (e) => {
-            const offset = Math.abs(e.target.getBoundingClientRect()[map.direction] - e[map.client]);
+        bar.addEventListener('mousedown', (e) => {
+            const offset = Math.abs(e.currentTarget.getBoundingClientRect()[map.direction] - e[map.client]);
             const thumbHalf = this[`${type}Bar`].children[0][map.offset] / 2;
             const thumbPositionPercentage = (offset - thumbHalf) / this[`${type}Bar`][map.offset];
             this.wrapper[map.scroll] =
@@ -133,13 +93,13 @@ export default class xjdScroll {
         thumb.setAttribute('class', 'myScroll__thumb');
         thumb.style.cssText = this.renderThumbStyle('0', `${(this.wrapper[map.wrapperClient] / this.content[map.contentOffset]) *
             100}%`, map);
-        this.on(thumb, 'mousedown', (e) => {
+        thumb.addEventListener('mousedown', (e) => {
             e.stopImmediatePropagation();
-            this.clearSlct();
+            window.getSelection().removeAllRanges();
             this.selectedThumb = type;
             this.cursorDown = true;
-            this.on(this.dcm, 'mousemove', this.mouseMoveDocumentHandler);
-            this.on(this.dcm, 'mouseup', this.mouseUpDocumentHandler);
+            this.dcm.addEventListener('mousemove', this.mouseMoveDocumentHandler);
+            this.dcm.addEventListener('mouseup', this.mouseUpDocumentHandler);
             this.dcm.onselectstart = () => false;
             this[map.axis] =
                 e.currentTarget[map.offset] -
@@ -168,13 +128,13 @@ export default class xjdScroll {
         this.refresh();
         this.wrapper.scrollTop = 0;
         this.wrapper.scrollLeft = 0;
-        this.on(this.dom, 'mouseover', () => {
+        this.dom.addEventListener('mouseover', () => {
             if (this.verticalBar)
                 this.verticalBar.style.opacity = '1';
             if (this.horizontalBar)
                 this.horizontalBar.style.opacity = '1';
         });
-        this.on(this.dom, 'mouseleave', () => {
+        this.dom.addEventListener('mouseleave', () => {
             if (this.cursorDown === true)
                 return;
             if (this.verticalBar)
@@ -182,19 +142,19 @@ export default class xjdScroll {
             if (this.horizontalBar)
                 this.horizontalBar.style.opacity = '';
         });
-        this.on(this.wrapper, 'scroll', (e) => {
+        this.wrapper.addEventListener('scroll', (e) => {
             let map;
             if (this.verticalBar) {
                 map = this.verticalMap;
                 const thumb = this.verticalBar.childNodes[0];
-                thumb.style.cssText = this.renderThumbStyle(`${(e.target[map.scroll] / this.wrapper[map.wrapperClient]) * 100}`, `${(this.wrapper[map.wrapperClient] /
+                thumb.style.cssText = this.renderThumbStyle(`${(e.currentTarget[map.scroll] / this.wrapper[map.wrapperClient]) * 100}`, `${(this.wrapper[map.wrapperClient] /
                     this.content[map.contentOffset]) *
                     100}%`, map);
             }
             if (this.horizontalBar) {
                 map = this.horizontalMap;
                 const thumb = this.horizontalBar.childNodes[0];
-                thumb.style.cssText = this.renderThumbStyle(`${(e.target[map.scroll] / this.wrapper[map.wrapperClient]) * 100}`, `${(this.wrapper[map.wrapperClient] /
+                thumb.style.cssText = this.renderThumbStyle(`${(e.currentTarget[map.scroll] / this.wrapper[map.wrapperClient]) * 100}`, `${(this.wrapper[map.wrapperClient] /
                     this.content[map.contentOffset]) *
                     100}%`, map);
             }
@@ -208,19 +168,19 @@ export default class xjdScroll {
         this.cursorDown = false;
         let hasScrollbar = this.hasScrollbar();
         if (hasScrollbar.vertical && hasScrollbar.horizontal) {
-            this.verticalBar = this.creatBar('vertical');
-            this.horizontalBar = this.creatBar('horizontal');
+            this.verticalBar = this.createBar('vertical');
+            this.horizontalBar = this.createBar('horizontal');
             this.verticalBar.style.cssText = 'bottom: 12px;';
             this.horizontalBar.style.cssText = 'right: 12px;';
             this.dom.appendChild(this.verticalBar);
             this.dom.appendChild(this.horizontalBar);
         }
         else if (hasScrollbar.vertical) {
-            this.verticalBar = this.creatBar('vertical');
+            this.verticalBar = this.createBar('vertical');
             this.dom.appendChild(this.verticalBar);
         }
         else if (hasScrollbar.horizontal) {
-            this.horizontalBar = this.creatBar('horizontal');
+            this.horizontalBar = this.createBar('horizontal');
             this.dom.appendChild(this.horizontalBar);
         }
         else {
@@ -228,3 +188,4 @@ export default class xjdScroll {
         }
     }
 }
+xjdScroll.version = '1.1.2';
