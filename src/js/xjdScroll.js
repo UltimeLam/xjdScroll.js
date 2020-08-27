@@ -188,4 +188,4 @@ export default class xjdScroll {
         }
     }
 }
-xjdScroll.version = '1.1.2';
+xjdScroll.version = '1.2.0';
